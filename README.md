@@ -26,4 +26,4 @@ Open [https://localhost:3000](https://localhost:3000) to view it in the browser.
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 ### ⚡️ Have fun!
-<img src="./src/assets/images/cooking.gif" alt="Homer cooking" width="300px">
+<img src="./cooking.gif" alt="Homer cooking" width="300px">

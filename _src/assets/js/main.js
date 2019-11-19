@@ -4,51 +4,66 @@ const form = document.querySelector('.main-form');
 const dish = document.querySelector('.header-title');
 const shipping = document.querySelector('.shipping-quantity');
 
-function loadIngredients () {
-  const ENDPOINT = 'https://raw.githubusercontent.com/Adalab/recipes-data/master/rissoto-setas.json';
-  fetch(ENDPOINT)
-    .then(response => response.json())
-    .then(data => {
-      let products = '';
-      let recipeName = data.recipe.name;
-      let shippingCost = data.recipe['shipping-cost'];
-      console.log(shippingCost);
-      let currency = data.recipe.currency;
-      for (const item of data.recipe.ingredients) {
-        let product = item.product;
-        let brand = '';
-        if (item.brand === undefined) {
-          brand = '';
-        } else {
-          brand = item.brand;
-        }
-        let items = item.items;
-        let quantity = item.quantity;
-        let price = item.price;
+let currentRecipe = {};
 
-        products += `<fieldset>
-                      <div>
-                        <input
-                          type="checkbox"
-                          value=${product}
-                          name="ingredients"
-                        />
-                      </div>
-                      <div>
-                        <input type="number" value="1"/>
-                      </div>
-                      <ul>
-                        <li>${product}</li>
-                        <li>${brand}</li>
-                        <li>${quantity}</li>
-                      </ul>
-                      <p>${price} ${currency}</p>
-                    </fieldset>`;
-      }
-      form.innerHTML = products;
-      dish.innerHTML = recipeName;
-      shipping.innerHTML = `${shippingCost} ${currency}`;
+function renderSingleProduct(product, currency) {
+  const name = product.product;
+  const brand = product.brand || '';
+  return `<fieldset class="form__fieldset">
+            <div class="checkbox-wrapper">
+              <input
+                type="checkbox"
+                value=${name}
+                name="ingredients"
+                class="form-checkbox"
+                checked=${product.selected}
+              />
+            </div>
+            <div class="input-wrapper">
+              <input
+                type="number"
+                value="${product.items}"
+                class="form-input"
+              />
+            </div>
+            <ul class="product-info">
+              <li class="product-name">${name}</li>
+              <li class="product-brand">${brand}</li>
+              <li class="product-quantity">${product.quantity}</li>
+            </ul>
+            <p class="price">${product.price} ${currency}</p>
+          </fieldset>`;
+}
+
+function renderRecipe(recipe) {
+  let recipeName = recipe.name;
+  let shippingCost = recipe['shipping-cost'];
+  let currency = recipe.currency;
+  const products = recipe.ingredients.reduce((acc, item) => {return acc + renderSingleProduct(item, currency);}, '');
+
+  form.innerHTML = products;
+  dish.innerHTML = recipeName;
+  shipping.innerHTML = `${shippingCost} ${currency}`;
+
+  const formCheckbox = document.querySelector('.form-checkbox');
+  formCheckbox.addEventListener('click', onIngredientSelected);
+}
+
+function loadIngredients() {
+  const loader = new IngredientLoader();
+  loader.findById('rissoto-setas')
+
+    .then(recipe => {
+      currentRecipe = recipe;
+      renderRecipe(recipe);
     });
 }
 
-loadIngredients ();
+loadIngredients();
+
+function onIngredientSelected(e) {
+  const ingredient = e.target.value;
+  currentRecipe.ingredients = [];
+  renderRecipe(currentRecipe);
+  console.log(currentRecipe);
+}

@@ -1,6 +1,6 @@
 'use strict';
 
-function IngredientLoader() {
+function RecipeLoader() {
   const ENDPOINT = 'https://raw.githubusercontent.com/Adalab/recipes-data/master/';
 
   const findById = (id) => {

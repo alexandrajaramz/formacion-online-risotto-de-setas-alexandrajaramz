@@ -1,10 +1,38 @@
 'use strict';
 
 const form = document.querySelector('.main-form');
-const dish = document.querySelector('.header-title');
+const recipeTitle = document.querySelector('.header-title');
 const shipping = document.querySelector('.shipping-quantity');
 
+
 let currentRecipe = {};
+
+function loadRecipe() {
+  const loader = new RecipeLoader();
+  loader.findById('rissoto-setas')
+
+    .then(recipe => {
+      currentRecipe = recipe;
+      renderRecipe(recipe);
+    });
+}
+
+loadRecipe();
+
+function renderRecipe(recipe) {
+  let recipeName = recipe.name;
+  let shippingCost = recipe['shipping-cost'];
+  let currency = recipe.currency;
+  const products = recipe.ingredients.reduce((acc, item) => {return acc + renderSingleProduct(item, currency);}, '');
+
+  form.innerHTML = products;
+  recipeTitle.innerHTML = recipeName;
+  shipping.innerHTML = `${shippingCost} ${currency}`;
+
+  //problem: listener not working, says its null
+  const formCheckbox = document.querySelector('.form-checkbox');
+  formCheckbox.addEventListener('click', onIngredientSelected);
+}
 
 function renderSingleProduct(product, currency) {
   const name = product.product;
@@ -35,35 +63,9 @@ function renderSingleProduct(product, currency) {
           </fieldset>`;
 }
 
-function renderRecipe(recipe) {
-  let recipeName = recipe.name;
-  let shippingCost = recipe['shipping-cost'];
-  let currency = recipe.currency;
-  const products = recipe.ingredients.reduce((acc, item) => {return acc + renderSingleProduct(item, currency);}, '');
-
-  form.innerHTML = products;
-  dish.innerHTML = recipeName;
-  shipping.innerHTML = `${shippingCost} ${currency}`;
-
-  const formCheckbox = document.querySelector('.form-checkbox');
-  formCheckbox.addEventListener('click', onIngredientSelected);
-}
-
-function loadIngredients() {
-  const loader = new IngredientLoader();
-  loader.findById('rissoto-setas')
-
-    .then(recipe => {
-      currentRecipe = recipe;
-      renderRecipe(recipe);
-    });
-}
-
-loadIngredients();
-
 function onIngredientSelected(e) {
   const ingredient = e.target.value;
   currentRecipe.ingredients = [];
   renderRecipe(currentRecipe);
-  console.log(currentRecipe);
+  console.log(ingredient);
 }
